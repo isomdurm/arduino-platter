@@ -1,3 +1,12 @@
+#include <Adafruit_ATParser.h>
+#include <Adafruit_BLE.h>
+#include <Adafruit_BLEBattery.h>
+#include <Adafruit_BLEEddystone.h>
+#include <Adafruit_BLEGatt.h>
+#include <Adafruit_BLEMIDI.h>
+#include <Adafruit_BluefruitLE_SPI.h>
+#include <Adafruit_BluefruitLE_UART.h>
+
 // COMMON SETTINGS
 // ----------------------------------------------------------------------------------------------
 // These settings are used in both SW UART, HW UART and SPI mode
@@ -23,7 +32,7 @@
 // this line if you are connecting the BLE to Leonardo/Micro or Flora
 // ----------------------------------------------------------------------------------------------
 #ifdef Serial1    // this makes it not complain on compilation if there's no Serial1
-  #define BLUEFRUIT_HWSERIAL_NAME      Serial1
+ #define BLUEFRUIT_HWSERIAL_NAME      Serial1
 #endif
 
 
@@ -43,7 +52,7 @@
 // ----------------------------------------------------------------------------------------------
 #define BLUEFRUIT_SPI_CS               8
 #define BLUEFRUIT_SPI_IRQ              7
-#define BLUEFRUIT_SPI_RST              4    // Optional but recommended, set to -1 if unused
+#define BLUEFRUIT_SPI_RST              -1    // Optional but recommended, set to -1 if unused
 
 // SOFTWARE SPI SETTINGS
 // ----------------------------------------------------------------------------------------------
@@ -54,3 +63,4 @@
 #define BLUEFRUIT_SPI_SCK              13
 #define BLUEFRUIT_SPI_MISO             12
 #define BLUEFRUIT_SPI_MOSI             11
+
