@@ -11,12 +11,22 @@
 
 #define FACTORYRESET_ENABLE         1
 #define MINIMUM_FIRMWARE_VERSION    "0.6.6"
+#define MODE_LED_BEHAVIOUR          "MODE"
 
 Adafruit_BluefruitLE_SPI ble(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
 
-const int SETUPPINS [] = {2,3};     //DIR, STE
-const int LIGHTPINS [] = {5,5,6,9,10,10};  //CFL27, CFL41, INC, HALO, LED27, LED40, DAYLIGHT, RANDOM
-int SAMPLESIZE = 8; //Number of pads.
+const int SETUPPINS [] = {2,3};
+// DIR, STE            halo,  cfl41, led27, led40, inc, cfl27 
+// 191 halo, 223 cfl27, 239 inc, 247 led40, 251 led27, cfl40
+
+const int LIGHTPINS [] = {253, 239, 191, 251, 247, 223};
+
+// 5,6,9,10 pins are available
+const int latchPin = 5;
+const int clockPin = 6;
+const int dataPin = 9;
+
+const int SAMPLESIZE = 2; //Number of pads.
 const int MOTORSPEED = 32000; //Faster means less torque. Slower means less time to perform scans.
 const int TIMEMARGIN = 500; //+/- value in milliseconds for when the main loop determines a timepoint is reached.
 const int ScanWaitTime = 0; //not necessary once phone check is in place. Set it to 0 then.
@@ -37,11 +47,16 @@ void setLights(){
  digitalWrite(SETUPPINS[0], LOW);
  pinMode(SETUPPINS[0], OUTPUT);
  pinMode(SETUPPINS[1], OUTPUT);
- for( int i = 0; i < sizeof(LIGHTPINS) / sizeof(int); i++ ){
-   setPin(LIGHTPINS[i]);
+ pinMode(latchPin, OUTPUT);
+ pinMode(clockPin, OUTPUT);
+ pinMode(dataPin, OUTPUT);
+ for(int i = 0; i < sizeof(LIGHTPINS) / sizeof(int); i++ ){
+   digitalWrite(latchPin, LOW);
+   shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[i]);  
+   digitalWrite(latchPin, HIGH);
  }
  Serial.println("Waiting for first time point.");
-// waitForSignal();
+ waitForSignal();
 }
 
 void setPin(int pin){
@@ -92,8 +107,9 @@ void waitForSignal(){
 }
 
 void timePointCycle(int padStep, int remainStep){
- for (int j = 0; j < ((sizeof(LIGHTPINS) / sizeof(int))); j ++){
-   digitalWrite(LIGHTPINS[j], LOW);
+ for (int j = 0; j < sizeof(LIGHTPINS) / sizeof(int); j ++){
+   digitalWrite(latchPin, LOW);
+   
    for(int k = 0; k < SAMPLESIZE; k++){      
      Serial.print("On Pin ");
      Serial.println(j);
@@ -102,9 +118,11 @@ void timePointCycle(int padStep, int remainStep){
      delay(ScanWaitTime);
      cycle(padStep);      
    }
+   
    Serial.println("Remain Cycle");
    cycle(remainStep);
-   digitalWrite(LIGHTPINS[j], HIGH);
+   shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[j]);  
+   digitalWrite(latchPin, HIGH);
  }
 }
 
@@ -117,11 +135,10 @@ int cycle(int stepDist){
 }
 
 void loop(){
-  Serial.println(SAMPLESIZE);
-  
- int padStep=1600/SAMPLESIZE; //Motor has 1600 steps.
- int remainStep=1600%padStep;
- timePointCycle(padStep, remainStep);  
- Serial.println("Waiting for next time point.");  
+  int padStep=1600/SAMPLESIZE; //Motor has 1600 steps.
+  int remainStep=1600%padStep;
+  unsigned long timeNow=millis();
+  timePointCycle(padStep, remainStep);  
+  Serial.println("Waiting for next time point.");  
 }
 
