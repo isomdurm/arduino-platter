@@ -101,6 +101,30 @@ void waitForSignal(){
      if (c == '1'){
        Serial.print("Signal recieved.");
        receivedSignal = true;
+     } else if (c == 'a'){
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[5]);  
+      digitalWrite(latchPin, HIGH);
+     } else if (c == 'b'){
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[0]);  
+      digitalWrite(latchPin, HIGH);
+     } else if (c == 'c'){
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[1]);  
+      digitalWrite(latchPin, HIGH);
+     } else if (c == 'd'){
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[2]);  
+      digitalWrite(latchPin, HIGH);
+     } else if (c == 'e'){
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[3]);  
+      digitalWrite(latchPin, HIGH);
+     } else if (c == 'f'){
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[4]);  
+      digitalWrite(latchPin, HIGH);
      }
    }
  }
