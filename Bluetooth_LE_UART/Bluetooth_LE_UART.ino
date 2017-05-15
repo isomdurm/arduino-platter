@@ -26,8 +26,10 @@ const int latchPin = 5;
 const int clockPin = 6;
 const int dataPin = 9;
 
-const int SAMPLESIZE = 2; //Number of pads.
-const int MOTORSPEED = 32000; //Faster means less torque. Slower means less time to perform scans.
+bool endScan = false;
+
+const int SAMPLESIZE = 8; //Number of pads.
+const int MOTORSPEED = 48000; //Faster means less torque. Slower means less time to perform scans.
 const int TIMEMARGIN = 500; //+/- value in milliseconds for when the main loop determines a timepoint is reached.
 const int ScanWaitTime = 0; //not necessary once phone check is in place. Set it to 0 then.
 
@@ -99,15 +101,16 @@ void waitForSignal(){
      char c = ble.read();
      Serial.print((char)c);
      if (c == '1'){
+      digitalWrite(latchPin, LOW);
        Serial.print("Signal recieved.");
        receivedSignal = true;
      } else if (c == 'a'){
       digitalWrite(latchPin, LOW);
-      shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[5]);  
+      shiftOut(dataPin, clockPin, MSBFIRST, 254);  
       digitalWrite(latchPin, HIGH);
      } else if (c == 'b'){
       digitalWrite(latchPin, LOW);
-      shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[0]);  
+      shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[5]);  
       digitalWrite(latchPin, HIGH);
      } else if (c == 'c'){
       digitalWrite(latchPin, LOW);
@@ -131,23 +134,26 @@ void waitForSignal(){
 }
 
 void timePointCycle(int padStep, int remainStep){
- for (int j = 0; j < sizeof(LIGHTPINS) / sizeof(int); j ++){
-   digitalWrite(latchPin, LOW);
-   
-   for(int k = 0; k < SAMPLESIZE; k++){      
-     Serial.print("On Pin ");
-     Serial.println(j);
-     Serial.println("Cycling");
-     waitForSignal();
-     delay(ScanWaitTime);
-     cycle(padStep);      
-   }
-   
-   Serial.println("Remain Cycle");
-   cycle(remainStep);
-   shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[j]);  
-   digitalWrite(latchPin, HIGH);
- }
+  for (int j = 0; j < sizeof(LIGHTPINS) / sizeof(int); j ++){
+    digitalWrite(latchPin, LOW);
+    Serial.print("On Pinss ");
+    Serial.println(j);
+    Serial.println("Cyclingss");
+     
+    for(int k = 0; k < SAMPLESIZE; k++){  
+      Serial.print("On Pin ");
+      Serial.println(j);
+      Serial.println("Cycling");
+      waitForSignal();
+      delay(ScanWaitTime);
+      cycle(padStep);      
+    }
+
+    Serial.println("Remain Cycle");
+    cycle(remainStep);
+    shiftOut(dataPin, clockPin, MSBFIRST, LIGHTPINS[j]);  
+    digitalWrite(latchPin, HIGH);
+  }
 }
 
 int cycle(int stepDist){
