@@ -232,6 +232,7 @@ delay(1000);
 
 delay(1000);
 
+
 digitalWrite(CFL27, HIGH);
 digitalWrite(CFL41, HIGH);
 digitalWrite(INC, HIGH);
